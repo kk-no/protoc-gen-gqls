@@ -6,4 +6,5 @@
 .bin
 
 # golang
+gen
 vendor
