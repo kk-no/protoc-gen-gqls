@@ -4,8 +4,20 @@ package example.v1;
 
 service ExampleService {
     rpc Ping(PingRequest) returns (PingResponse);
+    rpc Sample(SampleRequest) returns (SampleResponse);
 }
 
 message PingRequest {}
 
 message PingResponse {}
+
+message SampleRequest {
+    int32 id = 1;
+    string name = 2;
+    bool flag = 3;
+}
+
+message SampleResponse {
+    int32 id = 1;
+    string name = 2;
+}
