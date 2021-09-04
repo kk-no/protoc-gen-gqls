@@ -1,21 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os"
-	"strings"
 
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
-	"github.com/kk-no/protoc-gen-gqls/types"
+	"github.com/kk-no/protoc-gen-gqls/descriptor"
 	"google.golang.org/protobuf/proto"
-)
-
-var (
-	defaultIndent = 4
-	indent        = strings.Repeat(" ", defaultIndent)
 )
 
 func main() {
@@ -50,70 +42,7 @@ func parse(r io.Reader) (*plugin.CodeGeneratorRequest, error) {
 
 // process will parse request and format the file into the output format.
 func process(req *plugin.CodeGeneratorRequest) (*plugin.CodeGeneratorResponse, error) {
-	files := make(map[string]*descriptor.FileDescriptorProto)
-	for _, f := range req.GetProtoFile() {
-		files[f.GetName()] = f
-	}
-
-	var res plugin.CodeGeneratorResponse
-	for _, name := range req.GetFileToGenerate() {
-		var content strings.Builder
-
-		f := files[name]
-
-		// Service
-		serviceTypes := f.GetService()
-		services := make([]string, 0, len(serviceTypes))
-
-		services = append(services, "type Query {") // TODO: Implement other operations such as Mutation.
-		for _, serviceType := range serviceTypes {
-			services = append(services, indent+"# "+serviceType.GetName())
-			for _, method := range serviceType.GetMethod() {
-				in := pop(strings.Split(method.GetInputType(), "."))
-				out := pop(strings.Split(method.GetOutputType(), "."))
-				services = append(services, fmt.Sprintf("%s%s(req: %s): %s", indent, method.GetName(), in, out))
-			}
-			log.Printf("%s: %+v", serviceType.GetName(), serviceType)
-		}
-		services = append(services, "}\n\n")
-
-		if _, err := content.WriteString(strings.Join(services, "\n")); err != nil {
-			return nil, err
-		}
-
-		// Message
-		messageTypes := f.GetMessageType()
-		messages := make([]string, 0, len(messageTypes))
-
-		for _, messageType := range messageTypes {
-			fields := messageType.GetField()
-			if strings.Contains(messageType.GetName(), "Request") {
-				messages = append(messages, "input "+messageType.GetName()+" {")
-			} else {
-				messages = append(messages, "type "+messageType.GetName()+" {")
-			}
-			if len(fields) != 0 {
-				for _, field := range fields {
-					messages = append(messages, indent+field.GetName()+": "+types.GQL[field.GetType()])
-				}
-			} else {
-				messages = append(messages, indent+"_: Boolean # noop field")
-			}
-			messages = append(messages, "}\n")
-			log.Printf("%s: %+v", messageType.GetName(), messageType)
-		}
-
-		if _, err := content.WriteString(strings.Join(messages, "\n")); err != nil {
-			return nil, err
-		}
-
-		out := name + ".graphqls"
-		res.File = append(res.File, &plugin.CodeGeneratorResponse_File{
-			Name:    proto.String(out),
-			Content: proto.String(content.String()),
-		})
-	}
-	return &res, nil
+	return descriptor.Load(req)
 }
 
 // emit will output the file in the name and content passed to it.
@@ -126,9 +55,4 @@ func emit(res *plugin.CodeGeneratorResponse) error {
 		return err
 	}
 	return nil
-}
-
-// pop extracts the end value of the slice.
-func pop(s []string) string {
-	return s[len(s)-1]
 }
