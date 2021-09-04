@@ -1,0 +1,9 @@
+# IDE
+.idea
+.vscode
+
+# binary
+.bin
+
+# golang
+vendor
