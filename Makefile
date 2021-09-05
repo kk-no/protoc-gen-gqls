@@ -1,7 +1,7 @@
 .DEFAULT_GOAL:=generate
 
 BIN := $(CURDIR)/.bin
-GEN := $(CURDIR)/gen
+GEN := $(CURDIR)/example/gen
 PATH := $(abspath $(BIN)):$(PATH)
 UNAME_OS := $(shell uname -s)
 UNAME_ARCH := $(shell uname -m)

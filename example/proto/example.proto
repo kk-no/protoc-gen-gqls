@@ -3,6 +3,7 @@ syntax = "proto3";
 package example;
 
 import "google/api/annotations.proto";
+import "google/type/date.proto";
 
 service ExampleService {
     rpc Ping(PingRequest) returns (PingResponse) {
@@ -26,11 +27,20 @@ message SampleRequest {
     string name = 2;
     bool flag = 3;
     Environment env = 4;
+    google.type.Date date = 5;
 }
 
 message SampleResponse {
     int32 id = 1;
     string name = 2;
+    repeated ResponseContent contents = 3;
+}
+
+message ResponseContent {
+    string name = 1;
+    string data = 2;
+    google.type.Date date = 3;
+    bool active = 4;
 }
 
 enum Environment {
