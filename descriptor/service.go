@@ -46,6 +46,8 @@ func getService(packageName string, serviceTypes []*descriptorpb.ServiceDescript
 				service.query = append(service.query, methodStr)
 			case httpOpt.GetPost() != "", httpOpt.GetPut() != "", httpOpt.GetPatch() != "", httpOpt.GetDelete() != "":
 				service.mutation = append(service.mutation, methodStr)
+			default:
+				continue // No HTTP option
 			}
 		}
 	}

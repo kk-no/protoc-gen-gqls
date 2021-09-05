@@ -18,16 +18,17 @@ import "google/api/annotations.proto";
 import "google/type/date.proto";
 
 service ExampleService {
-    rpc Ping(PingRequest) returns (PingResponse) {
-        option (google.api.http) = {
-            get: "*"
-        };
+  rpc Ping(PingRequest) returns (PingResponse) {
+    option (google.api.http) = {
+      get: "*"
     };
-    rpc Sample(SampleRequest) returns (SampleResponse) {
-        option (google.api.http) = {
-            post: "*"
-        };
+  };
+  rpc Sample(SampleRequest) returns (SampleResponse) {
+    option (google.api.http) = {
+      post: "*"
     };
+  };
+  rpc Noop(NoopRequest) returns (NoopResponse) {};
 }
 
 message PingRequest {}
@@ -35,24 +36,24 @@ message PingRequest {}
 message PingResponse {}
 
 message SampleRequest {
-    int32 id = 1;
-    string name = 2;
-    bool flag = 3;
-    Environment env = 4;
-    google.type.Date date = 5;
+  int32 id = 1;
+  string name = 2;
+  bool flag = 3;
+  Environment env = 4;
+  google.type.Date date = 5;
 }
 
 message SampleResponse {
-    int32 id = 1;
-    string name = 2;
-    repeated ResponseContent contents = 3;
+  int32 id = 1;
+  string name = 2;
+  repeated ResponseContent contents = 3;
 }
 
 message ResponseContent {
-    string name = 1;
-    string data = 2;
-    google.type.Date date = 3;
-    bool active = 4;
+  string name = 1;
+  string data = 2;
+  google.type.Date date = 3;
+  bool active = 4;
 }
 
 enum Environment {
@@ -61,6 +62,10 @@ enum Environment {
   STAGING = 2;
   PRODUCTION = 3;
 }
+
+message NoopRequest {}
+
+message NoopResponse {}
 ```
 
 .graphqls
@@ -103,11 +108,18 @@ type ResponseContent {
     active: Boolean
 }
 
+input NoopRequest {
+    _: Boolean # noop field
+}
+
+type NoopResponse {
+    _: Boolean # noop field
+}
+
 enum Environment {
     ENVIRONMENT_UNKNOWN
     DEVELOPMENT
     STAGING
     PRODUCTION
 }
-
 ```
