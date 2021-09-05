@@ -1,10 +1,20 @@
 syntax = "proto3";
 
-package example.v1;
+package example;
+
+import "google/api/annotations.proto";
 
 service ExampleService {
-    rpc Ping(PingRequest) returns (PingResponse) {};
-    rpc Sample(SampleRequest) returns (SampleResponse) {};
+    rpc Ping(PingRequest) returns (PingResponse) {
+        option (google.api.http) = {
+            get: "*"
+        };
+    };
+    rpc Sample(SampleRequest) returns (SampleResponse) {
+        option (google.api.http) = {
+            post: "*"
+        };
+    };
 }
 
 message PingRequest {}
@@ -15,6 +25,7 @@ message SampleRequest {
     int32 id = 1;
     string name = 2;
     bool flag = 3;
+    Environment env = 4;
 }
 
 message SampleResponse {

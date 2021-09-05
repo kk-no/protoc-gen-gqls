@@ -37,7 +37,7 @@ test: ## Run unit test
 
 .PHONY: generate
 generate: $(GEN) $(PROTOC_GEN_GQLS) ## Run generate plugin
-	protoc --plugin=$(PROTOC_GEN_GQLS) --gqls_out=$(GEN) example/proto/*.proto
+	protoc -I./example/proto:./example/proto/third_party --plugin=$(PROTOC_GEN_GQLS) --gqls_out=$(GEN) example/proto/*.proto
 
 .PHONY: regen
 regen: ## Run generate plugin

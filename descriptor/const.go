@@ -10,5 +10,6 @@ const (
 )
 
 const (
-	QueryType = Type + "Query" + Open
+	QueryType    = Type + "Query" + Open
+	MutationType = Type + "Mutation" + Open
 )

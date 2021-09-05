@@ -26,7 +26,11 @@ func getMessage(messageTypes []*descriptorpb.DescriptorProto) message {
 		}
 		if len(fields) != 0 {
 			for _, field := range fields {
-				messages = append(messages, Indent+field.GetName()+": "+types.GQL[field.GetType()])
+				if field.GetType() == descriptorpb.FieldDescriptorProto_TYPE_ENUM {
+					messages = append(messages, Indent+field.GetName()+": "+pop(strings.Split(field.GetTypeName(), ".")))
+				} else {
+					messages = append(messages, Indent+field.GetName()+": "+types.GQL[field.GetType()])
+				}
 			}
 		} else {
 			messages = append(messages, Indent+"_: Boolean # noop field")
