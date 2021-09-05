@@ -13,7 +13,7 @@ func (e enum) String() string {
 	return strings.Join(e, "\n")
 }
 
-func getEnum(enumTypes []*descriptorpb.EnumDescriptorProto) enum {
+func getEnum(packageName string, enumTypes []*descriptorpb.EnumDescriptorProto) enum {
 	enums := make([]string, 0, len(enumTypes))
 
 	for _, enumType := range enumTypes {
