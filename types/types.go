@@ -20,7 +20,7 @@ const (
 	Repeated = Label(descriptor.FieldDescriptorProto_LABEL_REPEATED)
 )
 
-func (l Label) GQLStr(s string) string {
+func (l Label) GQL(s string) string {
 	switch l {
 	case Optional:
 		return s
