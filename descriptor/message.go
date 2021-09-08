@@ -1,57 +1,80 @@
 package descriptor
 
 import (
-	"log"
+	"fmt"
 	"strings"
 
 	"github.com/kk-no/protoc-gen-gqls/types"
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
-type message []string
+type messages []*message
 
-func (m message) String() string {
-	return strings.Join(m, "\n")
+func (m messages) GQL() string {
+	s := make([]string, len(m))
+	for i, message := range m {
+		s[i] = message.GQL()
+	}
+	return strings.Join(s, "\n")
 }
 
-func getMessage(packageName string, messageTypes []*descriptorpb.DescriptorProto) message {
-	messages := make(message, 0, len(messageTypes))
+func (m messages) String() string {
+	s := make([]string, len(m))
+	for i, message := range m {
+		s[i] = message.String()
+	}
+	return strings.Join(s, "")
+}
 
-	for _, messageType := range messageTypes {
-		fields := messageType.GetField()
-		if strings.Contains(messageType.GetName(), "Request") {
-			messages = append(messages, Input+messageType.GetName()+Open)
-		} else {
-			messages = append(messages, Type+messageType.GetName()+Open)
+type message struct {
+	messageType string
+	name        string
+	fields      []string
+}
+
+func (m message) GQL() string {
+	return strings.Join([]string{
+		m.messageType + m.name + Open,
+		"\n" + strings.Join(m.fields, "\n"),
+		"\n" + Close + "\n",
+	}, "")
+}
+
+func (m message) String() string {
+	return fmt.Sprintf("%s %s: %s", m.messageType, m.name, strings.Join(m.fields, ","))
+}
+
+func getMessages(messageTypes []*descriptorpb.DescriptorProto) messages {
+	messages := make(messages, len(messageTypes))
+
+	for i, messageType := range messageTypes {
+		message := &message{
+			name: messageType.GetName(),
 		}
 
-		if len(fields) != 0 {
-			for _, field := range fields {
-				var sb strings.Builder
-				sb.WriteString(Indent + field.GetName() + ": ")
+		if strings.Contains(message.name, "Request") {
+			message.messageType = Input
+		} else {
+			message.messageType = Type
+		}
 
+		if fields := messageType.GetField(); len(fields) != 0 {
+			message.fields = make([]string, len(fields))
+			for i, field := range fields {
 				var typeName string
 				switch field.GetType() {
-				case descriptorpb.FieldDescriptorProto_TYPE_ENUM:
+				case descriptorpb.FieldDescriptorProto_TYPE_ENUM, descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
+					// TODO: resolve dependency.
 					typeName = pop(strings.Split(field.GetTypeName(), "."))
-				case descriptorpb.FieldDescriptorProto_TYPE_MESSAGE:
-					if strings.HasPrefix(field.GetTypeName(), "."+packageName) {
-						typeName = pop(strings.Split(field.GetTypeName(), "."))
-					} else {
-						typeName = "String" // TODO: fix dependency
-					}
 				default:
 					typeName = types.Type[field.GetType()]
 				}
-
-				sb.WriteString(types.Label(field.GetLabel()).GQLStr(typeName))
-				messages = append(messages, sb.String())
+				message.fields[i] = Indent + field.GetName() + ": " + types.Label(field.GetLabel()).GQL(typeName)
 			}
 		} else {
-			messages = append(messages, Indent+"_: Boolean # noop field")
+			message.fields = []string{Indent + "_: Boolean # noop field"}
 		}
-		messages = append(messages, Close+"\n")
-		log.Printf("%s: %+v", messageType.GetName(), messageType)
+		messages[i] = message
 	}
 
 	return messages

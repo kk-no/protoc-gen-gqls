@@ -92,7 +92,7 @@ input SampleRequest {
     name: String
     flag: Boolean
     env: Environment
-    date: String
+    date: Date
 }
 
 type SampleResponse {
@@ -104,7 +104,7 @@ type SampleResponse {
 type ResponseContent {
     name: String
     data: String
-    date: String
+    date: Date
     active: Boolean
 }
 
@@ -122,4 +122,6 @@ enum Environment {
     STAGING
     PRODUCTION
 }
+
+
 ```
